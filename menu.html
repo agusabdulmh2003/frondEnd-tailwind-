@@ -7,32 +7,30 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-         body { background-color: #121212; color: #ffffff; }
-        .menu-card { cursor: pointer; background-color: #1e1e1e; color: #ffffff; border: 1px solid #333; }
-        .cart-item { display: flex; justify-content: space-between; background-color: #1e1e1e; border: 1px solid #444; padding: 10px; color: #ffffff }
-        .banner img { width: 100%; height: 250px; object-fit: cover; }
-        .modal-content { background-color: #222; color: #fff; }
-        .form-control, .btn { background-color: #333; color: #fff; border: 1px solid #555; }
-        .btn:hover { background-color: #444; }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body>
+<body id="body">
 <div class="container mt-4">
+    <button id="toggleDarkMode" class="btn btn-secondary position-fixed top-0 end-0 m-3">
+        🌙 
+    </button>
     <div id="bannerCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
             <div class="carousel-item active">
                 <img src="img/banner.png" class="d-block w-100" alt="Promo 1">
             </div>
+            <div class="carousel-item">
+                <img src="img/banner.png" class="d-block w-100" alt="Promo 2">
+            </div>
         </div>
     </div>
-    
     <h2 class="text-center mt-4">Menu</h2>
     
     <div class="tab-content mt-3">
         <div id="makanan" class="tab-pane fade show active row d-flex flex-wrap gap-3">
             <p class="text-center mt-4">Makanan</p>
-            </div>
+        </div>
         <div id="minuman" class="tab-pane fade show active row d-flex flex-wrap gap-3">
             <p class="text-center mt-4">Minuman</p>
         </div>
@@ -43,7 +41,7 @@
     
     <h3 class="mt-4">Keranjang Belanja</h3>
     <ul id="cart" class="list-group"></ul>
-    <button class="text-center btn btn-success mt-3" onclick="checkout()">Pesan Sekarang</button>
+    <button class="text-center btn btn-success mt-3" id="pesanSekarang">Pesan Sekarang</button>
 </div>
 
 <div class="modal fade" id="orderModal" tabindex="-1">
@@ -65,134 +63,179 @@
     </div>
 </div>
 
-<div class="modal fade" id="paymentModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Pilih Metode Pembayaran</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <select id="paymentMethod" class="form-control">
-                    <option value="cash">Cash</option>
-                    <option value="online">Online</option>
-                </select>
-                <div id="paymentDetails" class="mt-3"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
-$(document).ready(function () {
-    var menuMakanan = [
-        {name:'Nasi Goreng', img:'img/sp.png'},
-        {name:'Mie Ayam', img:'img/sp.png'},
-        {name:'Ayam Bakar', img:'img/sp.png'},
-        {name:'Soto Ayam', img:'img/sp.png'},
-        {name:'Bakso', img:'img/sp.png'},
-        {name:'Rendang', img:'img/sp.png'}
-    ];
-    var menuMinuman = [
-        {name:'Es Teh', img:'img/drink.png'},
-        {name:'Es Jeruk', img:'img/drink.png'},
-        {name:'Es Jeruk', img:'img/drink.png'},
-        {name:'Es Jeruk', img:'img/drink.png'},
-        {name:'Es Jeruk', img:'img/drink.png'},
-        {name:'Es Jeruk', img:'img/drink.png'},
-        {name:'Es Jeruk', img:'img/drink.png'},
-        
-    ];
-    var menuCemilan = [
-        {name:'Pisang Goreng', img:'img/mendo.png'},
-        {name:'Mendoan', img:'img/mendo.png'},
-        {name:'Tahu Crispy', img:'img/mendo.png'},
-        {name:'Cireng', img:'img/mendo.png'},
-        {name:'Risol', img:'img/mendo.png'},
-        {name:'Donat', img:'img/mendo.png'}
-    ];
-    
-    function renderMenu(menuArray, categoryId) {
-        menuArray.forEach(function (item) {
-            $('#' + categoryId).append(`
-                <div class="col">
-                    <div class="card menu-card" onclick="openModal('${item.name}', '${categoryId}')">
-                        <img src="${item.img}" class="card-img-top">
-                        <div class="card-body text-center">
-                            <h5>${item.name}</h5>
-                        </div>
-                    </div>
-                </div>
-            `);
-        });
-    }
-    
-    renderMenu(menuMakanan, 'makanan');
-    renderMenu(menuMinuman, 'minuman');
-    renderMenu(menuCemilan, 'cemilan');
-});
+    const body = document.getElementById("body");
+    const darkModeBtn = document.getElementById("toggleDarkMode");
+    let keranjang = [];
 
-function openModal(item, category) {
-    $('#modalTitle').text(item);
-    $('#extraOptions').empty();
-    
-    if (category === 'minuman') {
-        $('#extraOptions').append(`
-            <label>Pilihan:</label>
-            <select id="drinkOption" class="form-control">
-                <option value="Panas">Panas</option>
-                <option value="Dingin">Dingin</option>
-            </select>
-        `);
-    } else if (category === 'makanan') {
-        $('#extraOptions').append(`
-            <label>Level Pedas:</label>
-            <select id="spicyLevel" class="form-control">
-                <option value="Tidak Pedas">Tidak Pedas</option>
-                <option value="Sedang">Sedang</option>
-                <option value="Pedas">Pedas</option>
-            </select>
-        `);
+    if (localStorage.getItem("darkMode") === "enabled") {
+        enableDarkMode();
     }
-    
-    $('#addToCart').off().on('click', function () {
-        addToCart(item, category);
-        $('#orderModal').modal('hide');
-    });
-    
-    $('#orderModal').modal('show');
-}
 
-function addToCart(item, category) {
-    let qty = $('#qty').val();
-    let extra = '';
-    
-    if (category === 'minuman') {
-        extra = ' (' + $('#drinkOption').val() + ')';
-    } else if (category === 'makanan') {
-        extra = ' - ' + $('#spicyLevel').val();
-    }
-    
-    $('#cart').append(`
-        <li class="list-group-item cart-item">
-            ${item} ${extra} x${qty}
-            <button class="btn btn-danger btn-sm" onclick="$(this).parent().remove()">Hapus</button>
-        </li>
-    `);
-}
-
-function checkout() {
-    $('#paymentDetails').empty();
-    $('#paymentMethod').val('cash');
-    $('#paymentMethod').off().on('change', function() {
-        if ($(this).val() === 'online') {
-            $('#paymentDetails').html('<img src="img/qrcode.png" class="img-fluid">');
+    darkModeBtn.addEventListener("click", () => {
+        if (localStorage.getItem("darkMode") === "enabled") {
+            disableDarkMode();
         } else {
-            $('#paymentDetails').html('<p>Silakan lakukan pembayaran di kasir.</p>');
+            enableDarkMode();
         }
     });
-    $('#paymentModal').modal('show');
-}
+
+    function enableDarkMode() {
+        body.classList.add("bg-dark", "text-white");
+        darkModeBtn.innerHTML = "☀️";
+        localStorage.setItem("darkMode", "enabled");
+    }
+
+    function disableDarkMode() {
+        body.classList.remove("bg-dark", "text-white");
+        darkModeBtn.innerHTML = "🌙 ";
+        localStorage.setItem("darkMode", "disabled");
+    }
+
+    $(document).ready(function () {
+        var menuMakanan = [
+            {name:'Nasi Goreng', img:'img/sp.png', price: 20000},
+            {name:'Mie Ayam', img:'img/sp.png', price: 15000},
+            {name:'Ayam Bakar', img:'img/sp.png', price: 25000},
+            {name:'Soto Ayam', img:'img/sp.png', price: 18000},
+            {name:'Bakso', img:'img/sp.png', price: 15000},
+            {name:'Rendang', img:'img/sp.png', price: 30000}
+        ];
+        var menuMinuman = [
+            {name:'Es Teh', img:'img/drink.png', price: 5000},
+            {name:'Es Jeruk', img:'img/drink.png', price: 7000},
+            {name:'Kopi Hitam', img:'img/drink.png', price: 10000},
+            {name:'Cappuccino', img:'img/drink.png', price: 15000},
+            {name:'Jus Alpukat', img:'img/drink.png', price: 12000},
+            {name:'Jus Mangga', img:'img/drink.png', price: 10000}
+        ];
+
+        var menuCemilan = [
+            {name:'Pisang Goreng', img:'img/mendo.png', price: 8000},
+            {name:'Mendoan', img:'img/mendo.png', price: 10000},
+            {name:'Tahu Crispy', img:'img/mendo.png', price: 12000},
+            {name:'Cireng', img:'img/mendo.png', price: 5000},
+            {name:'Risol', img:'img/mendo.png', price: 7000},
+            {name:'Donat', img:'img/mendo.png', price: 10000}
+        ];
+        
+        function renderMenu(menuArray, categoryId) {
+            menuArray.forEach(function (item) {
+                $('#' + categoryId).append(`
+                    <div class="col">
+                        <div class="card menu-card" onclick="openModal('${item.name}', '${categoryId}', ${item.price})">
+                            <img src="${item.img}" class="card-img-top">
+                            <div class="card-body text-center">
+                                <h5>${item.name}</h5>
+                                <p>Rp ${item.price}</p>
+                            </div>
+                        </div>
+                    </div>
+                `);
+            });
+        }
+        
+        renderMenu(menuMakanan, 'makanan');
+        renderMenu(menuMinuman, 'minuman');
+        renderMenu(menuCemilan, 'cemilan');
+    });
+
+    function openModal(item, category, price) {
+        $('#modalTitle').text(item);
+        $('#extraOptions').empty();
+        
+        if (category === 'minuman') {
+            $('#extraOptions').append(`
+                <label>Pilihan:</label>
+                <select id="drinkOption" class="form-control">
+                    <option value="Panas">Panas</option>
+                    <option value="Dingin">Dingin</option>
+                </select>
+            `);
+        } else if (category === 'makanan') {
+            $('#extraOptions').append(`
+                <label>Level Pedas:</label>
+                <select id="spicyLevel" class="form-control">
+                    <option value="Tidak Pedas">Tidak Pedas</option>
+                    <option value="Sedang">Sedang</option>
+                    <option value="Pedas">Pedas</option>
+                </select>
+            `);
+        }
+        
+        $('#addToCart').off().on('click', function () {
+            addToCart(item, category, price);
+            $('#orderModal').modal('hide');
+        });
+        
+        $('#orderModal').modal('show');
+    }
+
+    function addToCart(item, category, price) {
+        let qty = $('#qty').val();
+        let extra = '';
+        
+        if (category === 'minuman') {
+            extra = ' (' + $('#drinkOption').val() + ')';
+        } else if (category === 'makanan') {
+            extra = ' - ' + $('#spicyLevel').val();
+        }
+        
+        keranjang.push({ item, extra, qty, price }); // Menyimpan item ke keranjang
+
+        $('#cart').append(`
+            <li class="list-group-item cart-item">
+                ${item} ${extra} x${qty} - Rp ${price * qty}
+                <button class="btn btn-danger btn-sm" onclick="$(this).parent().remove()">Hapus</button>
+            </li>
+        `);
+    }
+
+    $("#pesanSekarang").click(() => {
+        console.log("Tombol Pesan Sekarang diklik"); // Debugging
+        if (keranjang.length === 0) {
+            alert("Keranjang masih kosong!");
+            return;
+        }
+        
+        let totalHarga = keranjang.reduce((total, item) => total + (item.price * item.qty), 0); // Hitung total harga
+        
+        // Menggunakan SweetAlert untuk menampilkan total harga dan pilihan pembayaran
+        Swal.fire({
+            title: 'Total yang harus dibayar',
+            text: `Rp ${totalHarga}`,
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Bayar',
+            cancelButtonText: 'Batal',
+            input: 'select',
+            inputOptions: {
+                'cash': 'Cash',
+                'online': 'Online'
+            },
+            inputPlaceholder: 'Pilih Metode Pembayaran',
+            preConfirm: (value) => {
+                if (!value) {
+                    Swal.showValidationMessage('Pilih metode pembayaran!');
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (result.value === 'online') {
+                    Swal.fire({
+                        title: 'Scan QR untuk pembayaran',
+                        imageUrl: 'img/cris.png',
+                        imageWidth: 150,
+                        imageHeight: 150,
+                        imageAlt: 'QR Code',
+                    });
+                }
+                alert("Pembayaran Berhasil!");
+                keranjang = [];
+                $('#cart').empty(); // Kosongkan keranjang
+            }
+        });
+    });
 </script>
 </body>
 </html>

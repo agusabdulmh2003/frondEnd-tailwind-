@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback - Kedai Kami</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .sidebar {
+            width: 200px;
+            background: #f8f9fa;
+            height: 100vh;
+            padding: 20px;
+        }
+        .sidebar a {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .sidebar a.active {
+            background: #4CAF50;
+            color: white;
+            border-radius: 5px;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+            background: #f1f1f1;
+        }
+        .header {
+            background: #4CAF50;
+            padding: 15px;
+            color: white;
+            font-size: 18px;
+        }
+        .table-container {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background: #4CAF50;
+            color: white;
+        }
+        .btn-delete {
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>KEDAI KAMI</h2>
+        <a href="kasir.html" class="block py-2 px-4 text-green-600 font-semibold">Dashboard</a>
+                <a href="kasir.html" class="block py-2 px-4 text-gray-700 hover:text-green-600">Transaksi</a>
+                <a href="orderan.html" class="block py-2 px-4 text-gray-700 hover:text-green-600">Orderan</a>
+                <a href="menu.html" class="block py-2 px-4 text-gray-700 hover:text-green-600">Menu</a>
+                <a href="kasir.html" class="block py-2 px-4 text-gray-700 hover:text-green-600">User</a>
+                <a href="feeback.html" class="block py-2 px-4 text-gray-700 hover:text-green-600">Feedback</a>
+                <a href="laporan.html" class="block py-2 px-4 text-gray-700 hover:text-green-600">Laporan</a>
+                <a href="../index.html" class="block py-2 px-4 text-red-700 hover:text-red-900">logout</a>
+    </div>
+    <div class="content">
+        <div class="header">Feedback</div>
+        <div class="table-container">
+            <h3>Saran & Masukan</h3>
+            <table>
+                <tr>
+                    <th>Kode</th>
+                    <th>Feedback</th>
+                    <th>Tanggal</th>
+                    <th>Aksi</th>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>Mantap pisan euy</td>
+                    <td>2024-11-10</td>
+                    <td><button class="btn-delete">Hapus</button></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>sangat mantap</td>
+                    <td>2024-11-10</td>
+                    <td><button class="btn-delete">Hapus</button></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>kurang sendok</td>
+                    <td>2024-11-10</td>
+                    <td><button class="btn-delete">Hapus</button></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -7,17 +7,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<style>
-     body { background-color: #121212; color: #ffffff; }
-        .menu-card { cursor: pointer; background-color: #1e1e1e; color: #ffffff; border: 1px solid #333; }
-        .cart-item { display: flex; justify-content: space-between; background-color: #1e1e1e; border: 1px solid #444; padding: 10px; }
-        .banner img { width: 100%; height: 250px; object-fit: cover; }
-        .modal-content { background-color: #222; color: #fff; }
-        .form-control, .btn { background-color: #333; color: #fff; border: 1px solid #555; }
-        .btn:hover { background-color: #444; }
-</style>
-<body class="h-screen flex items-center justify-center bg-gray-100">
-    <div id="home" class="w-10/12 h-4/5 bg-white shadow-lg rounded-lg grid grid-cols-2">
+<body class="h-screen flex items-center justify-center bg-gray-100 text-gray-900 transition-colors duration-300" id="body">
+
+    <!-- Tombol Dark Mode -->
+    <button id="toggleDarkMode" class="absolute top-4 right-4 p-2 bg-gray-800 text-white rounded">
+        🌙 Dark Mode
+    </button>
+
+    <div id="home" class="w-10/12 h-4/5 shadow-lg rounded-lg grid grid-cols-2 transition-colors duration-300">
         <!-- Bagian Kiri: Form Pemesanan -->
         <div class="flex flex-col items-center justify-center p-8">
             <div class="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center mb-4">
@@ -25,19 +22,108 @@
             </div>
             <h1 class="text-2xl font-bold mb-2">Selamat Datang Di <span class="text-green-500">KedaiKami</span></h1>
             <p class="text-gray-500 text-sm mb-4">Sebelum memesan, masukkan nama dan meja</p>
-            <input id="nama" type="text" placeholder="Nama" class="border p-2 w-full mb-3 rounded">
-            <input id="meja" type="text" placeholder="No Meja" class="border p-2 w-full mb-3 rounded">
+            <input id="nama" type="text" placeholder="Nama" class="border p-2 w-full mb-3 rounded bg-white text-gray-900">
+            <input id="meja" type="text" placeholder="No Meja" class="border p-2 w-full mb-3 rounded bg-white text-gray-900">
             <a href="menu.html" class="bg-green-500 text-white px-4 py-2 rounded w-full">Pilih Menu</a>
+            
             <p class="text-gray-400 text-xs mt-6">Copyright © 2024 KedaiKami</p>
             <p class="text-green-500 text-xs">Bersantai Bersama - Kedai Kami GenZ</p>
+            <button id="loginKasir" class=" text-white px-4 py-2 rounded w-full mt-2">Login Kasir</button>
         </div>
         <div>
             <img src="img/keda.png" alt="Kedai Kami" class="h-full w-full object-cover rounded-r-lg">
         </div>
     </div>
-    
 
+    <!-- Modal Login Kasir -->
+    <div id="loginModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-96">
+            <h2 class="text-xl font-bold mb-4">Login Kasir</h2>
+            <input id="username" type="text" placeholder="Username" class="border p-2 w-full mb-3 rounded">
+            <input id="password" type="password" placeholder="Password" class="border p-2 w-full mb-4 rounded">
+            <button id="submitLogin" class="bg-green-500 text-white px-4 py-2 rounded w-full">Login</button>
+            <button id="closeLoginModal" class="mt-2 text-red-500">Batal</button>
+        </div>
+    </div>
 
-    
+    <script>
+        const body = document.getElementById("body");
+        const home = document.getElementById("home");
+        const darkModeBtn = document.getElementById("toggleDarkMode");
+        const loginModal = document.getElementById("loginModal");
+        const closeLoginModal = document.getElementById("closeLoginModal");
+        const submitLogin = document.getElementById("submitLogin");
+
+        // Cek apakah dark mode tersimpan di localStorage
+        if (localStorage.getItem("darkMode") === "enabled") {
+            enableDarkMode();
+        }
+
+        darkModeBtn.addEventListener("click", () => {
+            if (localStorage.getItem("darkMode") === "enabled") {
+                disableDarkMode();
+            } else {
+                enableDarkMode();
+            }
+        });
+
+        function enableDarkMode() {
+            body.classList.add("bg-gray-900", "text-white");
+            home.classList.add("bg-gray-800", "text-white");
+            document.querySelectorAll("input").forEach(input => {
+                input.classList.add("bg-gray-700", "text-white", "border-gray-600");
+            });
+            darkModeBtn.innerHTML = "☀️ Light Mode";
+            darkModeBtn.classList.add("bg-yellow-500", "text-black");
+            localStorage.setItem("darkMode", "enabled");
+        }
+
+        function disableDarkMode() {
+            body.classList.remove("bg-gray-900", "text-white");
+            home.classList.remove("bg-gray-800", "text-white");
+            document.querySelectorAll("input").forEach(input => {
+                input.classList.remove("bg-gray-700", "text-white", "border-gray-600");
+            });
+            darkModeBtn.innerHTML = "🌙 Dark Mode";
+            darkModeBtn.classList.remove("bg-yellow-500", "text-black");
+            localStorage.setItem("darkMode", "disabled");
+        }
+
+        // Event listener untuk tombol Login Kasir
+        document.getElementById("loginKasir").addEventListener("click", () => {
+            loginModal.classList.remove("hidden");
+        });
+
+        // Event listener untuk tombol Batal
+        closeLoginModal.addEventListener("click", () => {
+            loginModal.classList.add("hidden");
+        });
+
+        // Event listener untuk tombol Login
+        submitLogin.addEventListener("click", () => {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            // Validasi sederhana
+            if (username === "11" && password === "11") {
+                Swal.fire({
+                    title: 'Login Berhasil!',
+                    text: 'Selamat datang, Kasir!',
+                    icon: 'success',
+                }).then(() => {
+                    // Arahkan ke halaman dashboard kasir
+                    window.location.href = "kasir/kasir.html";
+                });
+                loginModal.classList.add("hidden");
+            } else {
+                Swal.fire({
+                    title: 'Login Gagal!',
+                    text: 'Username atau password salah.',
+                    icon: 'error',
+                });
+            }
+        });
+    </script>
+
 </body>
 </html>
